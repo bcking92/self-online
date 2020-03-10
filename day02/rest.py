@@ -38,7 +38,7 @@ def ssafy_req(BASE_URL='http://13.125.222.176/quiz/', name='서울 3반 김병�
             print('끝')
             break
     with open('response.json', 'w', encoding='utf-8') as f:
-        json.dump(result, f, ensure_ascii = False,)
+        json.dump(result, f, ensure_ascii=False)
 
 
 if __name__ == '__main__':
