@@ -19,21 +19,22 @@ def ssafy_req(BASE_URL='http://13.125.222.176/quiz/', name='서울 3반 김병�
         })
 
         res = requests.post(BASE_URL + NEXT_URL, headers=headers, data=data)
-        if res.json().get('code') == 600:
+        resJson = res.json()
+        if resJson.get('code') == 600:
             print('Wrong asnwer.')
-        elif res.json().get('code') == 400:
+        elif resJson.get('code') == 400:
             print('JSON parsing error')
-        elif res.json().get('code') == 403:
+        elif resJson.get('code') == 403:
             print('No nickname')
-        elif res.json().get('code') == 200:
-            result.append(res.json())
-            print(res.json().get('question'))
-            NEXT_URL = res.json().get('nextUrl')
+        elif resJson.get('code') == 200:
+            result.append(resJson)
+            print(resJson.get('question'))
+            NEXT_URL = resJson.get('nextUrl')
         else:
             print('알수없는 error')
             break
 
-        if res.json().get('nextUrl') == '수고하셨습니다.':
+        if resJson.get('nextUrl') == '수고하셨습니다.':
             print('끝')
             break
     with open('response.json', 'w', encoding='utf-8') as f:
