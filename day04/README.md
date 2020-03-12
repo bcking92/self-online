@@ -442,3 +442,178 @@ Bye
 
 - 잘 실행되었다.
 
+### 심화과제: Docker-compose를 사용해 컨테이너를 일괄 실행하기
+
+##### docker-compose.yaml 작성하기
+
+```yaml
+version: "3"
+
+services:
+  front:
+    images: front:0.1
+    build: ./back-sk
+    ports:
+      - 80:80
+    restart: always
+  back:
+    image: back:0.1
+    build: ./front-sk
+    depends_on:
+      -db
+    ports:
+      - 8080:8080
+    restart: always
+  db:
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "ssafyssafyroomroom"
+      MYSQL_DATABASE: "ssafy"
+    command:
+      --character-set-server=utf8mb4
+      --collaction-server=utf8mb4_unicode_ci
+    ports:
+      - 3306:3306
+    restart: always
+```
+
+##### docker-compose up -d 명령어를 통해 컨테이너 일괄 실행후 확인
+
+```shell
+$ docker-compose up -d
+Recreating webmobile2-skeleton_db_1    ... done                                         Recreating webmobile2-skeleton_front_1 ... done
+Recreating webmobile2-skeleton_back_1  ... done
+```
+
+```shell
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                               NAMES
+129814985ed1        back:0.1            "java -jar /app.jar"     57 seconds ago      Up 54 seconds       0.0.0.0:8080->8080/tcp              webmobile2-skeleton_back_1
+77694eb97280        mysql               "docker-entrypoint.s…"   57 seconds ago      Up 55 seconds       0.0.0.0:3306->3306/tcp, 33060/tcp   webmobile2-skeleton_db_1
+41f92c1cfc13        front:0.1           "nginx -g 'daemon of…"   59 seconds ago      Up 57 seconds       0.0.0.0:80->80/tcp, 8080/tcp        webmobile2-skeleton_front_1
+```
+
+```shell
+$ docker-compose ps
+           Name                          Command               State                 Ports
+--------------------------------------------------------------------------------------------------------
+webmobile2-skeleton_back_1    java -jar /app.jar               Up      0.0.0.0:8080->8080/tcp
+webmobile2-skeleton_db_1      docker-entrypoint.sh --cha ...   Up      0.0.0.0:3306->3306/tcp, 33060/tcp
+webmobile2-skeleton_front_1   nginx -g daemon off;             Up      0.0.0.0:80->80/tcp, 8080/tcp
+```
+
+```shell
+$ docker-compose logs
+Attaching to webmobile2-skeleton_back_1, webmobile2-skeleton_db_1, webmobile2-skeleton_front_1
+back_1   |
+back_1   |   .   ____          _            __ _ _
+back_1   |  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+back_1   | ( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+back_1   |  \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+back_1   |   '  |____| .__|_| |_|_| |_\__, | / / / /
+back_1   |  =========|_|==============|___/=/_/_/_/
+back_1   |  :: Spring Boot ::        (v2.2.2.RELEASE)
+back_1   |
+back_1   | 2020-03-12 08:48:46.879  INFO 1 --- [           main] com.web.curation.WebCurationApplication  : Starting WebCurationApplication v0.0.1-SNAPSHOT on 129814985ed1 with PID 1 (/app.jar started by spring in /)
+back_1   | 2020-03-12 08:48:46.889  INFO 1 --- [           main] com.web.curation.WebCurationApplication  : No active profile set, falling back to default profiles: default
+back_1   | 2020-03-12 08:48:50.669  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 8080 (http)
+back_1   | 2020-03-12 08:48:50.711  INFO 1 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+back_1   | 2020-03-12 08:48:50.715  INFO 1 --- [           main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.29]
+back_1   | 2020-03-12 08:48:50.913  INFO 1 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+back_1   | 2020-03-12 08:48:50.913  INFO 1 --- [           main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 3870 ms
+back_1   | 2020-03-12 08:48:52.393  INFO 1 --- [           main] pertySourcedRequestMappingHandlerMapping : Mapped URL path [/v2/api-docs] onto method [springfox.documentation.swagger2.web.Swagger2Controller#getDocumentation(String, HttpServletRequest)]
+back_1   | 2020-03-12 08:48:53.169  INFO 1 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+back_1   | 2020-03-12 08:48:53.530  INFO 1 --- [           main] d.s.w.p.DocumentationPluginsBootstrapper : Context refreshed
+back_1   | 2020-03-12 08:48:53.590  INFO 1 --- [           main] d.s.w.p.DocumentationPluginsBootstrapper : Found 1 custom documentation plugin(s)
+back_1   | 2020-03-12 08:48:53.678  INFO 1 --- [           main] s.d.s.w.s.ApiListingReferenceScanner     : Scanning for api listing references
+back_1   | 2020-03-12 08:48:54.185  INFO 1 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 8080 (http) with context path ''
+back_1   | 2020-03-12 08:48:54.203  INFO 1 --- [           main] com.web.curation.WebCurationApplication  : Started WebCurationApplication in 8.298 seconds (JVM running for 9.979)
+db_1     | 2020-03-12 08:48:43+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.19-1debian10 started.
+db_1     | 2020-03-12 08:48:43+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+db_1     | 2020-03-12 08:48:43+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.0.19-1debian10 started.
+db_1     | 2020-03-12T08:48:44.165302Z 0 [Warning] [MY-011070] [Server] 'Disabling symbolic links using --skip-symbolic-links (or equivalent) is the default. Consider not using this option as it' is deprecated and will be removed in a future release.
+db_1     | 2020-03-12T08:48:44.165391Z 0 [System] [MY-010116] [Server] /usr/sbin/mysqld (mysqld 8.0.19) starting as process 1
+db_1     | 2020-03-12T08:48:44.917972Z 0 [Warning] [MY-010068] [Server] CA certificate ca.pem is self signed.
+db_1     | 2020-03-12T08:48:44.921546Z 0 [Warning] [MY-011810] [Server] Insecure configuration for --pid-file: Location '/var/run/mysqld' in the path is accessible to all OS users. Consider choosing a different directory.
+db_1     | 2020-03-12T08:48:44.959530Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.19'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
+db_1     | 2020-03-12T08:48:45.043221Z 0 [System] [MY-011323] [Server] X Plugin ready for connections. Socket: '/var/run/mysqld/mysqlx.sock' bind-address: '::' port: 33060
+```
+
+- 잘 실행되었다.
+
+##### 접속해보기
+
+- front
+
+  - http://192.168.99.100/ 로 접속해보니 잘 실행되는 것을 확인
+
+- back
+
+  - http://192.168.99.100/swagger-ui.html/ 로 접속해보니 잘 실행되는 것을 확인
+
+- mysql
+
+  ```shell
+  $ docker exec -it webmobile2-skeleton_db_1 mysql -uroot -p ssafy
+  Enter password:
+  Welcome to the MySQL monitor.  Commands end with ; or \g.
+  Your MySQL connection id is 8
+  Server version: 8.0.19 MySQL Community Server - GPL
+  
+  Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+  
+  Oracle is a registered trademark of Oracle Corporation and/or its
+  affiliates. Other names may be trademarks of their respective
+  owners.
+  
+  Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+  
+  mysql> show databases;
+  +--------------------+
+  | Database           |
+  +--------------------+
+  | information_schema |
+  | mysql              |
+  | performance_schema |
+  | ssafy              |
+  | sys                |
+  +--------------------+
+  5 rows in set (0.00 sec)
+  
+  mysql> use ssafy
+  Database changed
+  mysql> show tables;
+  Empty set (0.01 sec)
+  
+  mysql> exit
+  Bye
+  ```
+
+  - 잘 작동하는 것을 확인
+
+##### 컨테이너 삭제 후 확인
+
+```shell
+$ docker-compose down
+Stopping webmobile2-skeleton_back_1  ... done
+Stopping webmobile2-skeleton_db_1    ... done
+Stopping webmobile2-skeleton_front_1 ... done
+Removing webmobile2-skeleton_back_1  ... done
+Removing webmobile2-skeleton_db_1    ... done
+Removing webmobile2-skeleton_front_1 ... done
+Removing network webmobile2-skeleton_default
+```
+
+```shell
+$ docker-compose ps
+Name   Command   State   Ports
+------------------------------
+```
+
+```shell
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+- 정상적으로 down 되었고 삭제되었다.
+
