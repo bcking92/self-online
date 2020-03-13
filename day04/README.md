@@ -1,4 +1,4 @@
-# 도커실습
+# Docker
 
 ### 도커 개발환경 설정
 
@@ -251,6 +251,23 @@ open C:\Program Files\Docker Toolbox\initialAdminPassword: Access is denied.
 ##### 웹 브라우져에서 접속(http://localhost:8080) 해서 앞서 확인 한 패스워드를 붙여 넣고 Jenkins 설정을 계속 진행하기
 
 - container가 실행중인데 접속이 안된다.
+- http://192.168.99.100:8080 으로 접속하니 접속되었다. (default machine ip)
+
+##### 컨테이너 재 시작 후 Up Status 시간이 초기화 된 것을 확인 후 삭제
+
+```shell
+$ docker restart myjenkins
+myjenkins
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                               NAMES
+a2dcb790542c        jenkins:2.60.3      "/bin/tini -- /usr/l…"   7 minutes ago       Up 4 seconds        0.0.0.0:8080->8080/tcp, 50000/tcp   myjenkins
+$ docker rm -f myjenkins
+myjenkins
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+- 잘 작동되었다.
 
 ### Skeleton 코드 기반 도커 이미지 제작(프론트)
 
@@ -616,4 +633,3 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 ```
 
 - 정상적으로 down 되었고 삭제되었다.
-
