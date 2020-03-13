@@ -1,6 +1,38 @@
 # 웹 어플리케이션 성능 향상을 위한 캐시 적용
 
-### 캐시란?
+### 캐시(Cache)
+
+##### 캐시란?
+
+- 캐시는 많은 시간이 걸리거나 자주 사용되는 작업의 결과물을 미리 저장해두고 사용하는 것이다.
+- 다양한 캐시가 있다
+  - 브라우저(웹) 캐시
+  - CPU 캐시
+  - 데이터베이스 캐시
+  - 등등..
+
+##### 캐시가 유용한 이유
+
+- 파레토 법칙
+  - 전체 결과의 80%는 전체 원인의 20% 이다.
+  - 자주사용하는 몇가지만 저장해놓고 사용해도 큰 성능 향상을 기대할 수 있다.
+
+##### 캐시의 문제점
+
+- 캐시의 문제는 연산의 결과가 달라졌을 때 발생한다. 
+  - 예를 들어 GET api/posts/1 요청에 해당하는 결과를 캐시해서 사용한다고 하자. 중간에 데이터가 업데이트되어 결과값이 바뀌면 갱신되지 않은 데이터를 사용자에게 보여주는 것이다.
+
+##### 캐시의 삭제
+
+- TTL(Time To Live)
+  - 캐시를 얼마나 저장해두고 사용할 것인가? (얼마나 살려둘 것인가) 라는 의미이다. 캐시의 만료기간을 정해 만료기간이 지난 캐시는 다시 갱신되도록 만든다.
+- 명시적 삭제
+  - 캐시가 유효하지 않다고 판단하면 명시적으로 삭제 후 새로 갱신하는 방법도 있다.
+
+##### Redis
+
+- redis는 key-value 형태의 오픈소스 NoSQL이다.
+- 메인메모리 위에 올라가는 데이터베이스로서 데이터 저장용도보다는 캐시 솔루션으로 주로 이용된다.
 
 ### 시스템 아키텍처
 
@@ -44,9 +76,10 @@ import * as util from 'util';
 const client = redis.createClient(6379, '127.0.0.1');
 const getAsync = util.promisify(client.get).bind(client);
 const setAsync = util.promisify(client.set).bind(client);
+const expire = client.expire;
 ...
 
-export { getAsync, setAsync, client };
+export { getAsync, setAsync, expire };
 ```
 
 - client를 싱글톤으로 사용하기위해 index.ts 에서 export 시켜주었다. async await 패턴을 client.get(), client.set() 함수에 적용하기위해 util.promisify()를 이용해 async function 처럼 바꿔주고 export 시켰다.
@@ -54,7 +87,7 @@ export { getAsync, setAsync, client };
 ```typescript
 // PostController.ts
 ...
-import { clinet } from '../../index.ts';
+import { getAsync, setAsync, expire } from '../../index.ts';
 import * as util from 'util';
 ...
 
