@@ -110,6 +110,13 @@
 
   모든 컬럼 다 사용. 첫 째 행은 컬럼명이르모 IGRNORE 1ROWS 추가
 
+- 서울이 아닌 데이터 삭제
+
+  ```mariadb
+  DELETE FROM medical
+  WHERE 시도!='서울';
+  ```
+
 - 결과
 
   ![](medical.jpg)
